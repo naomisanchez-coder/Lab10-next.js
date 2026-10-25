@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { Pokemon, PokemonListResponse } from '@/types/pokemon';
 import Image from 'next/image';
@@ -14,7 +15,16 @@ async function getPokemon(name: string): Promise<Pokemon> {
     next: { revalidate: 86400 } // Revalida cada 24 horas
   });
   
-  if (!res.ok) throw new Error('Pokémon no encontrado');
+  // Si el Pokémon no existe (404), redirige al componente not-found.tsx
+  if (res.status === 404) {
+    notFound();
+  }
+
+  // Si ocurre otro tipo de error, activa el componente error.tsx
+  if (!res.ok) {
+    throw new Error('Error al cargar la información del Pokémon');
+  }
+
   return res.json();
 }
 
